@@ -1,0 +1,26 @@
+pipeline {
+stage('Setup Vault') {
+    steps {
+        script {
+            // Assurez-vous que le script vault-setup.sh est disponible dans votre workspace
+            sh 'chmod +x vault-setup.sh'
+            sh './vault-setup.sh'
+
+            // Récupérer le token root et le stocker comme variable d'environnement
+            env.VAULT_TOKEN = sh(script: "grep 'Initial Root Token:' init.txt | awk '{print \$NF}'", returnStdout: true).trim()
+        }
+    }
+}
+
+stage('Deploy Applications') {
+    steps {
+        script {
+            // Déployer customer-app
+            sh 'VAULT_TOKEN=${VAULT_TOKEN} java -jar customer-app.jar'
+
+            // Déployer inventory-service
+            sh 'VAULT_TOKEN=${VAULT_TOKEN} java -jar inventory-service.jar'
+        }
+    }
+}
+}
