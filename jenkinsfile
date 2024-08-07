@@ -6,6 +6,11 @@ pipeline {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
     }
 
+    environment {
+        VAULT_ADDR = 'http://185.97.144.204:8200'
+        VAULT_SCRIPT_PATH = '/home/secret_manager/hashiCorp_vault/vault_setup.sh'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -14,30 +19,55 @@ pipeline {
             }
         }
 
-stage('Setup Vault') {
-    steps {
-        script {
-            // Assurez-vous que le script vault-setup.sh est disponible dans votre workspace
-            sh 'chmod +x vault-setup.sh'
-            sh './vault-setup.sh'
+        stage('Setup Vault') {
+            steps {
+                script {
+                    // Exécuter le script Vault sur le serveur distant
+                    sshagent(['your-ssh-credentials-id']) {
+                        sh """
+                            ssh user@185.97.144.204 '
+                                chmod +x ${VAULT_SCRIPT_PATH}
+                                ${VAULT_SCRIPT_PATH}
+                            '
+                        """
+                    }
 
-            // Récupérer le token root et le stocker comme variable d'environnement
-            env.VAULT_TOKEN = sh(script: "grep 'Initial Root Token:' init.txt | awk '{print \$NF}'", returnStdout: true).trim()
+                    // Récupérer le token root
+                    env.VAULT_TOKEN = sh(
+                        script: "ssh user@185.97.144.204 'grep \"Initial Root Token:\" /home/secret_manager/hashiCorp_vault/init.txt | awk \'{print \$NF}\'\'",
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+
+        stage('Build Applications') {
+            steps {
+                dir('customer-app') {
+                    sh 'mvn clean package'
+                }
+                dir('inventory-service') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Deploy Applications') {
+            steps {
+                script {
+                    // Déployer customer-app
+                    sh """
+                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
+                        java -jar customer-app/target/customer-app.jar &
+                    """
+
+                    // Déployer inventory-service
+                    sh """
+                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
+                        java -jar inventory-service/target/inventory-service.jar &
+                    """
+                }
+            }
         }
     }
-}
-
-stage('Deploy Applications') {
-    steps {
-        script {
-            // Déployer customer-app
-            sh 'VAULT_TOKEN=${VAULT_TOKEN} java -jar customer-app.jar'
-
-            // Déployer inventory-service
-            sh 'VAULT_TOKEN=${VAULT_TOKEN} java -jar inventory-service.jar'
-        }
-    }
-}
- }
-
 }
