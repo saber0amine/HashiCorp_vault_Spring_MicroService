@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: customer-app
+  cloud:
+    vault:
+      uri: http://185.97.144.204:8200
+      token: ${VAULT_TOKEN}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: customer-app
