@@ -1,6 +1,10 @@
+def remote = [:]
+remote.name = 'vps'
+remote.host = '185.97.144.204'
+remote.allowAnyHosts = true
+
 pipeline {
     agent any
-
     parameters {
         string(name: 'REPO_URL', defaultValue: 'https://github.com/saber0amine/SpoceOveD.git', description: 'Git repository URL')
         string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
@@ -19,55 +23,68 @@ pipeline {
             }
         }
 
-        stage('Setup Vault') {
+        stage('Connect to my server') {
             steps {
                 script {
-                    // Exécuter le script Vault sur le serveur distant
-                    sshagent(['your-ssh-credentials-id']) {
-                        sh """
-                            ssh user@185.97.144.204 '
-                                chmod +x ${VAULT_SCRIPT_PATH}
-                                ${VAULT_SCRIPT_PATH}
-                            '
-                        """
+                    withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        remote.user = USERNAME
+                        remote.password = PASSWORD
                     }
-
-                    // Récupérer le token root
-                    env.VAULT_TOKEN = sh(
-                        script: "ssh user@185.97.144.204 'grep \"Initial Root Token:\" /home/secret_manager/hashiCorp_vault/init.txt | awk \'{print \$NF}\'\'",
-                        returnStdout: true
-                    ).trim()
+                    sshCommand remote: remote, command: 'ls -la'
                 }
             }
         }
 
-        stage('Build Applications') {
-            steps {
-                dir('customer-app') {
-                    sh 'mvn clean package'
-                }
-                dir('inventory-service') {
-                    sh 'mvn clean package'
-                }
-            }
-        }
+        // Uncomment and complete the following stages as needed
+        // stage('Setup Vault') {
+        //     steps {
+        //         script {
+        //             sshagent(['your-ssh-credentials-id']) {
+        //                 sh """
+        //                     ssh user@185.97.144.204 '
+        //                         chmod +x ${VAULT_SCRIPT_PATH}
+        //                         ${VAULT_SCRIPT_PATH}
+        //                     '
+        //                 """
+        //             }
+        //             env.VAULT_TOKEN = sh(
+        //                 script: "ssh user@185.97.144.204 'grep \"Initial Root Token:\" /home/secret_manager/hashiCorp_vault/init.txt | awk \'{print \$NF}\'\'",
+        //                 returnStdout: true
+        //             ).trim()
+        //         }
+        //     }
+        // }
 
-        stage('Deploy Applications') {
-            steps {
-                script {
-                    // Déployer customer-app
-                    sh """
-                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar customer-app/target/customer-app.jar &
-                    """
+        // stage('Build Applications') {
+        //     steps {
+        //         dir('customer-app') {
+        //             sh 'mvn clean package'
+        //         }
+        //         dir('inventory-service') {
+        //             sh 'mvn clean package'
+        //         }
+        //     }
+        // }
 
-                    // Déployer inventory-service
-                    sh """
-                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar inventory-service/target/inventory-service.jar &
-                    """
-                }
-            }
+        // stage('Deploy Applications') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
+        //                 java -jar customer-app/target/customer-app.jar &
+        //             """
+        //             sh """
+        //                 VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
+        //                 java -jar inventory-service/target/inventory-service.jar &
+        //             """
+        //         }
+        //     }
+        // }
+    }
+
+    post {
+        always {
+            sleep 5
         }
     }
 }
