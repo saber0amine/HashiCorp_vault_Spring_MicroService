@@ -48,7 +48,6 @@ pipeline {
                 }
                 dir('inventory-service') {
                     sh 'mvn clean package -DskipTests'
-
                 }
             }
         }
@@ -58,15 +57,14 @@ pipeline {
                 script {
                     sh """
                         VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar customer-app/target/customer-app.jar &
+                        java -jar customer-front-thymeleaf-app/target/customer-front-thymeleaf-app-0.0.1-SNAPSHOT.jar &
                     """
                     sh """
                         VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar inventory-service/target/inventory-service.jar &
+                        java -jar inventory-service/target/inventory-service-0.0.1-SNAPSHOT.jar &
                     """
                 }
             }
         }
     }
-
 }
