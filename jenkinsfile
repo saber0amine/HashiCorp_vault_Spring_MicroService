@@ -14,7 +14,6 @@ pipeline {
         VAULT_ADDR = 'http://185.97.144.204:8200'
         VAULT_SCRIPT_PATH = '/home/secret_manager/hashiCorp_vault/vault_setup.sh'
     }
-
     stages {
         stage('Checkout') {
             steps {
