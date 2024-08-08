@@ -39,6 +39,8 @@ pipeline {
                     env.VAULT_TOKEN = sshCommand remote: remote, command: """
                         grep 'Initial Root Token:' /home/secret_manager/hashiCorp_vault/init.txt | awk '{print \$NF}'
                     """.trim()
+                    echo "VAULT_TOKEN: ${env.VAULT_TOKEN}"
+                    echo "VAULT_ADDR: ${env.VAULT_ADDR}"
                 }
             }
         }
@@ -59,11 +61,13 @@ pipeline {
         stage('Deploy Applications') {
             steps {
                 script {
+                    echo "Deploying customer-app with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
                     sshCommand remote: remote, command: """
                         docker run -d --name customer-app -p 8075:8075 \
                         -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
                         ${env.CUSTOMER_APP_IMAGE}
                     """
+                    echo "Deploying inventory-service with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
                     sshCommand remote: remote, command: """
                         docker run -d --name inventory-service -p 8098:8098 \
                         -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
