@@ -14,7 +14,6 @@ pipeline {
         VAULT_ADDR = 'http://185.97.144.204:8200'
         VAULT_SCRIPT_PATH = '/home/secret_manager/hashiCorp_vault/vault_setup.sh'
     }
-
     stages {
         stage('Checkout') {
             steps {
@@ -25,15 +24,18 @@ pipeline {
 
         stage('Set up Vault') {
             steps {
-                withCredentials([string(credentialsId: 'vault-unseal-key-1', variable: 'UNSEAL_KEY_1'),
-                                 string(credentialsId: 'vault-unseal-key-2', variable: 'UNSEAL_KEY_2'),
-                                 string(credentialsId: 'vault-unseal-key-3', variable: 'UNSEAL_KEY_3'),
-                                 string(credentialsId: 'vault-root-token', variable: 'ROOT_TOKEN')]) {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        remote.user = USERNAME
+                        remote.password = PASSWORD
+                    }
                     sshCommand remote: remote, command: """
-                        export VAULT_ADDR='http://127.0.0.1:8200'
                         chmod +x ${VAULT_SCRIPT_PATH}
-                        ${VAULT_SCRIPT_PATH} ${UNSEAL_KEY_1} ${UNSEAL_KEY_2} ${UNSEAL_KEY_3} ${ROOT_TOKEN}
+                        ${VAULT_SCRIPT_PATH}
                     """
+                    env.VAULT_TOKEN = sshCommand remote: remote, command: """
+                        grep 'Initial Root Token:' /home/secret_manager/hashiCorp_vault/init.txt | awk '{print \$NF}'
+                    """.trim()
                 }
             }
         }
