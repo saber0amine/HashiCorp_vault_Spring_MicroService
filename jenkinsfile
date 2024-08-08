@@ -6,8 +6,8 @@ remote.allowAnyHosts = true
 pipeline {
     agent any
     parameters {
-        string(name: 'REPO_URL', defaultValue: 'https://github.com/saber0amine/SpoceOveD.git', description: 'Git repository URL')
-        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
+        string(name: 'REPO_URL', defaultValue: 'https://github.com/saber0amine/HashiCorp_vault_Spring_MicroService.git', description: 'Git repository URL')
+        string(name: 'BRANCH', defaultValue: 'master', description: 'Git branch to build')
     }
 
     environment {
