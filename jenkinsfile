@@ -43,7 +43,7 @@ pipeline {
 
         stage('Build Applications') {
             steps {
-                dir('customer-app') {
+                dir('customer-front-thymeleaf-app') {
                     sh 'mvn clean package'
                 }
                 dir('inventory-service') {
