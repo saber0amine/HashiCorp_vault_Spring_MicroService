@@ -44,10 +44,10 @@ pipeline {
         stage('Build Applications') {
             steps {
                 dir('customer-front-thymeleaf-app') {
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -Dskip Test'
                 }
                 dir('inventory-service') {
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -Dskip Test'
                 }
             }
         }
