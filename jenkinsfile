@@ -13,7 +13,10 @@ pipeline {
     environment {
         VAULT_ADDR = 'http://185.97.144.204:8200'
         VAULT_SCRIPT_PATH = '/home/secret_manager/hashiCorp_vault/vault_setup.sh'
+        CUSTOMER_APP_IMAGE = 'customer-app:latest'
+        INVENTORY_SERVICE_IMAGE = 'inventory-service:latest'
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -44,9 +47,11 @@ pipeline {
             steps {
                 dir('customer-front-thymeleaf-app') {
                     sh 'mvn clean package -DskipTests'
+                    sh "docker build -t ${env.CUSTOMER_APP_IMAGE} ."
                 }
                 dir('inventory-service') {
                     sh 'mvn clean package -DskipTests'
+                    sh "docker build -t ${env.INVENTORY_SERVICE_IMAGE} ."
                 }
             }
         }
@@ -54,13 +59,15 @@ pipeline {
         stage('Deploy Applications') {
             steps {
                 script {
-                    sh """
-                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar customer-front-thymeleaf-app/target/customer-front-thymeleaf-app-0.0.1-SNAPSHOT.jar &
+                    sshCommand remote: remote, command: """
+                        docker run -d --name customer-app -p 8080:8080 \
+                        -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
+                        ${env.CUSTOMER_APP_IMAGE}
                     """
-                    sh """
-                        VAULT_TOKEN=${env.VAULT_TOKEN} VAULT_ADDR=${VAULT_ADDR} \
-                        java -jar inventory-service/target/inventory-service-0.0.1-SNAPSHOT.jar &
+                    sshCommand remote: remote, command: """
+                        docker run -d --name inventory-service -p 8081:8080 \
+                        -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
+                        ${env.INVENTORY_SERVICE_IMAGE}
                     """
                 }
             }
