@@ -25,7 +25,7 @@ services:
     ports:
       - "8098:8098"
     networks:
-      - vault-network
+      - vault_network
 
 networks:
   vault-network:
