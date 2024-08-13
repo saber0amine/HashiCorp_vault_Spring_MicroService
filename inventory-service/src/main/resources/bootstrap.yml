@@ -3,9 +3,9 @@ spring:
     name: inventory-service
   cloud:
     vault:
-      host: 172.17.0.3
+      host: 172.17.0.2
       port: 8200
-      uri: http://172.17.0.3:8200
+      uri: http://172.17.0.2:8200
       token: myroot
       kv:
         enabled: true
