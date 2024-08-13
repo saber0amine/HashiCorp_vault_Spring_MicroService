@@ -61,6 +61,10 @@ pipeline {
         stage('Deploy Applications') {
             steps {
                 script {
+                    withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    remote.user = USERNAME
+                    remote.password = PASSWORD
+                     }
                     env.VAULT_TOKEN ='myroot'
                     echo "Deploying customer-app with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
                     sshCommand remote: remote, command: """
