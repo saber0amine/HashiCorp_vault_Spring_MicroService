@@ -12,10 +12,7 @@ pipeline {
 
     environment {
         VAULT_ADDR = 'http://185.97.144.204:8200'
-        VAULT_SCRIPT_PATH = '/home/secret_manager/hashiCorp_vault/vault_setup.sh'
-        CUSTOMER_APP_IMAGE = 'customer-app:latest'
-        INVENTORY_SERVICE_IMAGE = 'inventory-service:latest'
-        DOCKER_NETWORK= 'vault_network'
+        VAULT_TOKEN = 'myroot'
     }
 
     stages {
@@ -26,58 +23,16 @@ pipeline {
             }
         }
 
-//         stage('Set up Vault') {
-//             steps {
-//                 script {
-//                     withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-//                         remote.user = USERNAME
-//                         remote.password = PASSWORD
-//                     }
-//                     sshCommand remote: remote, command: """
-//                         chmod +x ${VAULT_SCRIPT_PATH}
-//                         ${VAULT_SCRIPT_PATH}
-//                     """
-//                     env.VAULT_TOKEN = sshCommand remote: remote, command: """
-//                         grep 'Initial Root Token:' /home/secret_manager/hashiCorp_vault/init.txt | awk '{print \$NF}'
-//                     """.trim()
-//                     echo "VAULT_TOKEN: ${env.VAULT_TOKEN}"
-//                     echo "VAULT_ADDR: ${env.VAULT_ADDR}"
-//                 }
-//             }
-//         }
-
-        stage('Build Applications') {
-            steps {
-                dir('customer-front-thymeleaf-app') {
-                    sh 'mvn clean package -DskipTests'
-                    sh "docker build -t ${env.CUSTOMER_APP_IMAGE} ."
-                }
-                dir('inventory-service') {
-                    sh 'mvn clean package -DskipTests'
-                    sh "docker build -t ${env.INVENTORY_SERVICE_IMAGE} ."
-                }
-            }
-        }
-
-        stage('Deploy Applications') {
+        stage('Build and Deploy with Docker Compose') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    remote.user = USERNAME
-                    remote.password = PASSWORD
-                     }
-                    env.VAULT_TOKEN ='myroot'
-                    echo "Deploying customer-app with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
+                        remote.user = USERNAME
+                        remote.password = PASSWORD
+                    }
                     sshCommand remote: remote, command: """
-                        docker run -d --name customer-app --netwrok ${env.vault_network} -p 8075:8075 \
-                        -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
-                        ${env.CUSTOMER_APP_IMAGE}
-                    """
-                    echo "Deploying inventory-service with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
-                    sshCommand remote: remote, command: """
-                        docker run -d --name inventory-service --netwrok ${env.vault_network} -p 8098:8098 \
-                        -e VAULT_TOKEN=${env.VAULT_TOKEN} -e VAULT_ADDR=${VAULT_ADDR} \
-                        ${env.INVENTORY_SERVICE_IMAGE}
+                        docker-compose down || true
+                        docker-compose up --build -d
                     """
                 }
             }

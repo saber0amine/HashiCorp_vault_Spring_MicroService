@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  customer-app:
+    build:
+      context: ./customer-front-thymeleaf-app
+    image: customer-app:latest
+    container_name: customer-app
+    environment:
+      VAULT_TOKEN: myroot
+      VAULT_ADDR: http://185.97.144.204:8200
+    ports:
+      - "8075:8075"
+    networks:
+      - vault-network
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+    image: inventory-service:latest
+    container_name: inventory-service
+    environment:
+      VAULT_TOKEN: myroot
+      VAULT_ADDR: http://185.97.144.204:8200
+    ports:
+      - "8098:8098"
+    networks:
+      - vault-network
+
+networks:
+  vault-network:
+    external: true
