@@ -3,9 +3,13 @@ spring:
     name: inventory-service
   cloud:
     vault:
-      uri: http://185.97.144.204:8200
+      host: vault_container
+      port: 8200
+      uri: http://vault_container:8200
       token: ${VAULT_TOKEN}
       kv:
         enabled: true
         backend: secret
         default-context: inventory-service
+      connection-timeout: 5000
+      read-timeout: 15000
