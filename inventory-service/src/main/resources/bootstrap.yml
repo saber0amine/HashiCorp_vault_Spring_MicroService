@@ -3,7 +3,7 @@ spring:
     name: inventory-service
   cloud:
     vault:
-      uri: http://vault_container:8200
+      uri: ${VAULT_ADDR}
       token: ${VAULT_TOKEN}
       kv:
         enabled: true
