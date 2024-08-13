@@ -5,7 +5,7 @@ spring:
     vault:
       host: 185.97.144.204
       port: 8200
-      uri: http://185.97.144.204:8200
+      uri: vault://vault_container:8200
       token: myroot
       kv:
         enabled: true
