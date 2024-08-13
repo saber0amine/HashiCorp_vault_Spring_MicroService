@@ -31,8 +31,8 @@ pipeline {
                         remote.password = PASSWORD
                     }
                     sshCommand remote: remote, command: """
-                        docker-compose down || true
-                        docker-compose up --build -d
+                        docker compose down || true
+                        docker compose up --build -d
                     """
                 }
             }
