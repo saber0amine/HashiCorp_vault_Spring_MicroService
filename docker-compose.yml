@@ -12,7 +12,7 @@ services:
     ports:
       - "8075:8075"
     networks:
-      - vault-network
+      - vault_network
 
   inventory-service:
     build:
@@ -28,5 +28,5 @@ services:
       - vault_network
 
 networks:
-  vault-network:
+  vault_network:
     external: true
