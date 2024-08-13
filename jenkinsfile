@@ -25,25 +25,25 @@ pipeline {
             }
         }
 
-        stage('Set up Vault') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        remote.user = USERNAME
-                        remote.password = PASSWORD
-                    }
-                    sshCommand remote: remote, command: """
-                        chmod +x ${VAULT_SCRIPT_PATH}
-                        ${VAULT_SCRIPT_PATH}
-                    """
-                    env.VAULT_TOKEN = sshCommand remote: remote, command: """
-                        grep 'Initial Root Token:' /home/secret_manager/hashiCorp_vault/init.txt | awk '{print \$NF}'
-                    """.trim()
-                    echo "VAULT_TOKEN: ${env.VAULT_TOKEN}"
-                    echo "VAULT_ADDR: ${env.VAULT_ADDR}"
-                }
-            }
-        }
+//         stage('Set up Vault') {
+//             steps {
+//                 script {
+//                     withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+//                         remote.user = USERNAME
+//                         remote.password = PASSWORD
+//                     }
+//                     sshCommand remote: remote, command: """
+//                         chmod +x ${VAULT_SCRIPT_PATH}
+//                         ${VAULT_SCRIPT_PATH}
+//                     """
+//                     env.VAULT_TOKEN = sshCommand remote: remote, command: """
+//                         grep 'Initial Root Token:' /home/secret_manager/hashiCorp_vault/init.txt | awk '{print \$NF}'
+//                     """.trim()
+//                     echo "VAULT_TOKEN: ${env.VAULT_TOKEN}"
+//                     echo "VAULT_ADDR: ${env.VAULT_ADDR}"
+//                 }
+//             }
+//         }
 
         stage('Build Applications') {
             steps {
