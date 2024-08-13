@@ -26,14 +26,10 @@ pipeline {
         stage('Build and Deploy with Docker Compose') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'SSH_CRED', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        remote.user = USERNAME
-                        remote.password = PASSWORD
-                    }
-                    sshCommand remote: remote, command: """
+                    sh '''
                         docker compose down || true
                         docker compose up --build -d
-                    """
+                         '''
                 }
             }
         }
