@@ -4,7 +4,7 @@ spring:
   cloud:
     vault:
       uri: http://185.97.144.204:8200
-      token: myroot
+      token: $VAULT_TOKEN
       kv:
         enabled: true
         backend: secret
