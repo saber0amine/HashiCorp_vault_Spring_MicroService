@@ -61,6 +61,7 @@ pipeline {
         stage('Deploy Applications') {
             steps {
                 script {
+                    env.VAULT_TOKEN ='myroot'
                     echo "Deploying customer-app with VAULT_TOKEN: ${env.VAULT_TOKEN} and VAULT_ADDR: ${env.VAULT_ADDR}"
                     sshCommand remote: remote, command: """
                         docker run -d --name customer-app -p 8075:8075 \
