@@ -3,9 +3,9 @@ spring:
     name: customer-app
   cloud:
     vault:
-      host: 185.97.144.204
+      host: 172.17.0.3
       port: 8200
-      uri: vault://vault_container:8200
+      uri: http://172.17.0.3:8200
       token: myroot
       kv:
         enabled: true
