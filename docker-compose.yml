@@ -73,8 +73,8 @@ services:
     volumes:
       - /var/jenkins_home/workspace/Spring-Microservice/docker/grafana:/etc/grafana/provisioning/datasources
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_SECURITY_ADMIN_USER=saber
+      - GF_SECURITY_ADMIN_PASSWORD=saber
 networks:
   vault_network:
     external: true
