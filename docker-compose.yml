@@ -46,15 +46,15 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/prometheus:/etc/prometheus
+      - /var/jenkins_home/workspace/Spring-Microservice/docker/prometheus:/etc/prometheus
   ## Tempo
   my-tempo:
     image: grafana/tempo
     container_name: my-tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
-      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
-      - ./docker/tempo/tempo-data:/tmp/tempo
+      - /var/jenkins_home/workspace/Spring-Microservice/docker/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - /var/jenkins_home/workspace/Spring-Microservice/docker/tempo/tempo-data:/tmp/tempo
     ports:
       - "3200:3200" # Tempo
       - "9411:9411" # zipkin
@@ -71,7 +71,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+      - /var/jenkins_home/workspace/Spring-Microservice/docker/grafana:/etc/grafana/provisioning/datasources:ro
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=password
