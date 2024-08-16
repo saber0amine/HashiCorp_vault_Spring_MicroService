@@ -53,7 +53,7 @@ services:
     container_name: my-tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
-      - /var/jenkins_home/workspace/Spring-Microservice/docker/tempo:/etc/tempo
+      - /var/jenkins_home/workspace/Spring-Microservice/docker/tempo/tempo.yml:/etc/tempo/tempo.yml
       - /var/jenkins_home/workspace/Spring-Microservice/docker/tempo/tempo-data:/tmp/tempo
     ports:
       - "3200:3200" # Tempo
