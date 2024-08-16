@@ -47,7 +47,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus:/etc/prometheus
   ## Tempo
   my-tempo:
     image: grafana/tempo
