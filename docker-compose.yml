@@ -46,7 +46,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /var/jenkins_home/workspace/Spring-Microservice/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
   ## Tempo
   my-tempo:
     image: grafana/tempo
