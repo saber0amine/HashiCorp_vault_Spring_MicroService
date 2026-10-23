@@ -1,6 +1,6 @@
 def remote = [:]
 remote.name = 'vps'
-remote.host = '185.97.144.204'
+remote.host = env.DEPLOY_HOST
 remote.allowAnyHosts = true
 
 pipeline {
@@ -11,8 +11,8 @@ pipeline {
     }
 
     environment {
-        VAULT_ADDR = 'http://185.97.144.204:8200'
-        VAULT_TOKEN = 'myroot'
+        VAULT_ADDR = credentials('vault-addr')
+        VAULT_TOKEN = credentials('vault-token')
     }
 
     stages {
@@ -34,4 +34,4 @@ pipeline {
             }
         }
     }
-}
+}
