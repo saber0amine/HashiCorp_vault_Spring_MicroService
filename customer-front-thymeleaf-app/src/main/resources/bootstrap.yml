@@ -3,8 +3,8 @@ spring:
     name: customer-app
   cloud:
     vault:
-      uri: http://172.19.0.2:8200
-      token: myroot
+      uri: ${VAULT_ADDR:http://localhost:8200}
+      token: ${VAULT_TOKEN}
       kv:
         enabled: true
         backend: secret

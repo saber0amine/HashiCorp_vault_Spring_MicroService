@@ -1,5 +1,6 @@
 package ma.enset.inventoryservice.sec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -38,8 +39,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("http://185.97.144.204:8095/realms/amasoft-realm/protocol/openid-connect/certs").build();
+    public JwtDecoder jwtDecoder(@Value("${keycloak.jwk-set-uri:http://localhost:8080/realms/amasoft-realm/protocol/openid-connect/certs}") String jwkSetUri) {
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
